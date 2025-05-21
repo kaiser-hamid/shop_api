@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Category extends Model
+{
+    use SoftDeletes;  
+    
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'parent_id',
+        'level',
+        'image',
+        'banner',
+        'is_active'
+    ];
+
+    // Get parent category
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    // Get child categories
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    // Get all ancestors
+    public function ancestors()
+    {
+        return $this->parent()->with('ancestors');
+    }
+
+    // Get all descendants
+    public function descendants()
+    {
+        return $this->children()->with('descendants');
+    }
+
+    // Get main categories (level 1)
+    public static function mainCategories()
+    {
+        return self::whereNull('parent_id')->get();
+    }
+
+    // Get subcategories (level 2)
+    public static function subcategories()
+    {
+        return self::whereNotNull('parent_id')
+                   ->whereHas('parent', function($q) {
+                       $q->whereNull('parent_id');
+                   })
+                   ->get();
+    }
+
+    // Get sub-subcategories (level 3)
+    public static function subSubcategories()
+    {
+        return self::whereNotNull('parent_id')
+                   ->whereHas('parent', function($q) {
+                       $q->whereNotNull('parent_id');
+                   })
+                   ->get();
+    }
+}
