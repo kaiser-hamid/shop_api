@@ -26,6 +26,10 @@ class AdminAuthController extends Controller
 
         $user = Admin::where('email', $request->email)->first();
 
+        if(!$user){
+            return $this->errorResponse(message: 'Invalid email or password');
+        }
+
         if($user->is_blocked){
             return $this->errorResponse(message: 'Your account is blocked');
         }

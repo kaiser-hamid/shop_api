@@ -4,17 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+
 class Brand extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasSlug;
     
     protected $fillable = [
         'name',
         'slug',
         'logo',
         'description',
-        'status'
+        'status',
+        'is_top',
+        'is_featured',
     ];
+
+   public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
 
     public function products()
     {

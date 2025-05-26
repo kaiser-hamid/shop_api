@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('image')->nullable();
             $table->text('description')->nullable();
+            $table->boolean('is_top')->default(false);
+            $table->boolean('is_featured')->default(false);
             $table->boolean('status')->default(true);
 
             $table->softDeletes();

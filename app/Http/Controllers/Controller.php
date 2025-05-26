@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\JsonResponse;
 
 abstract class Controller
 {
-    public function successResponse($message = 'Success', $data = null)
+    public function successResponse($message = 'Success', $data = null): JsonResponse
     {
         return response()->json([
             'status' => true,
@@ -24,7 +25,7 @@ abstract class Controller
         ], $code);
     }
 
-    public function notFoundResponse($message = 'Not Found', $errors = null)
+    public function notFoundResponse($message = 'Not Found', $errors = null): JsonResponse
     {
         return response()->json([
             'status' => false,
