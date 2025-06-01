@@ -10,4 +10,9 @@ class BrandService
     {
         return Brand::select('id', 'name', 'is_featured', 'is_top', 'status')->orderBy('name')->get();
     }
+
+    public function getBrandsForSelectSearch($query)
+    {
+        return Brand::active()->where('name', 'like', "%{$query}%")->get();
+    }
 }

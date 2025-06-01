@@ -17,8 +17,8 @@ return new class extends Migration
 
             /* Track what field was changed */
             $table->string('field_name', 50);
-            $table->text('old_value');
-            $table->text('new_value');
+            $table->text('old_value')->nullable();
+            $table->text('new_value')->nullable();
 
             /* Track who made the change */
             $table->unsignedBigInteger('changed_by');

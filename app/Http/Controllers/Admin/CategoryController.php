@@ -33,4 +33,23 @@ class CategoryController extends Controller
         return $this->successResponse('Categories fetched successfully', $categories);
     }
 
+    public function ayncSelectSearch(Request $request) : JsonResponse
+    {
+        $categories = $this->categoryService->getCategoriesForSelectSearch($request->input('name'));
+
+        if($categories->isEmpty()){
+            return $this->errorResponse('No categories found');
+        }
+
+        $categories = $categories->map(function($category){
+            return [
+                'id' => $category->id,
+                'label' => $category->name,
+                'value' => $category->id,
+            ];
+        });
+
+        return $this->successResponse('Categories fetched successfully', $categories);
+    }
+
 } 

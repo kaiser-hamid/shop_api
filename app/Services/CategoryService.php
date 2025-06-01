@@ -107,4 +107,9 @@ class CategoryService
         return Category::with(['parent', 'children'])->find($id);
     }
 
+    public function getCategoriesForSelectSearch($query)
+    {
+        return Category::active()->where('name', 'like', "%$query%")->get();
+    }
+
 } 

@@ -4,18 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\ProductStatusEnum;
+use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\HasSlug;
+use App\Traits\HasFileUpload;
+use App\Models\ProductImage;
+use App\Models\ProductVariant;
+use App\Models\ProductHistory;
+use App\Models\ProductView;
+use App\Models\Brand;
 
 class Product extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasSlug, HasFileUpload;
     
     protected $fillable = [
         'name',
         'slug',
         'description',
-        'category_id',
-        'subcategory_id',
-        'sub_subcategory_id',
         'brand_id',
         'weight',
         'dimensions',
@@ -26,20 +32,70 @@ class Product extends Model
         'status',
     ];
 
+    protected array $fileColumns = ['featured_image'];
+    protected string $fileDirectory = 'products';
+    protected bool $hasThumbnail = true;
+
+    protected $casts = [
+        'meta_keywords' => 'array',
+        'status' => ProductStatusEnum::class,
+    ];
+
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
+
     // Relationships
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsToMany(Category::class)->withTimestamps();
     }
 
-    public function subcategory()
+    public function brand()
     {
-        return $this->belongsTo(Category::class, 'subcategory_id');
+        return $this->belongsTo(Brand::class);
     }
 
-    public function subSubcategory()
+    public function productImages()
     {
-        return $this->belongsTo(Category::class, 'sub_subcategory_id');
+        return $this->hasMany(ProductImage::class);
+    }
+
+
+    /* Relation end */
+
+     // Get main categories
+    public function mainCategories()
+    {
+        return $this->belongsToMany(Category::class)
+            ->whereNull('parent_id')
+            ->withTimestamps();
+    }
+
+    // Get subcategories
+    public function subcategories()
+    {
+        return $this->belongsToMany(Category::class)
+            ->whereNotNull('parent_id')
+            ->whereHas('parent', function($q) {
+                $q->whereNull('parent_id');
+            })
+            ->withTimestamps();
+    }
+
+    // Get sub-subcategories
+    public function subSubcategories()
+    {
+        return $this->belongsToMany(Category::class)
+            ->whereNotNull('parent_id')
+            ->whereHas('parent', function($q) {
+                $q->whereNotNull('parent_id');
+            })
+            ->withTimestamps();
     }
 
     // Helper method to get the deepest category
@@ -147,17 +203,6 @@ class Product extends Model
             });
     }
 
-    public function categoryTypes()
-    {
-        return $this->belongsToMany(CategoryType::class, 'product_category_types')
-                    ->withTimestamps();
-    }
-
-     public function brand()
-    {
-        return $this->belongsTo(Brand::class);
-    }
-
      public function getRecommendedProducts($limit = 5)
     {
         return Product::where(function($query) {
@@ -192,26 +237,5 @@ class Product extends Model
         return $recentViews->pluck('product');
     }
 
-    // Helper methods
-    /* public function isFreeDelivery()
-    {
-        return $this->categoryTypes()
-                    ->where('slug', 'free-delivery')
-                    ->exists();
-    }
-
-    public function isTopSelling()
-    {
-        return $this->categoryTypes()
-                    ->where('slug', 'top-selling')
-                    ->exists();
-    }
-
-    public function isOnOffer()
-    {
-        return $this->categoryTypes()
-                    ->where('slug', 'offer')
-                    ->exists();
-    } */
 
 }

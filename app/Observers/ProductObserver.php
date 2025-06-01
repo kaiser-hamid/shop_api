@@ -2,6 +2,9 @@
 
 namespace App\Observers;
 
+use App\Models\Product;
+use App\Models\ProductHistory;
+
 class ProductObserver
 {
     public function created(Product $product)
@@ -21,6 +24,8 @@ class ProductObserver
 
     private function logHistory(Product $product, string $changeType)
     {
+        return null;
+        
         $changes = $product->getDirty();
         
         foreach ($changes as $field => $newValue) {
@@ -28,7 +33,7 @@ class ProductObserver
                 'product_id' => $product->id,
                 'field_name' => $field,
                 'old_value' => $product->getOriginal($field),
-                'new_value' => $newValue,
+                'new_value' => $newValue ?? null,
                 'changed_by' => auth()->id(),
                 'change_type' => $changeType
             ]);

@@ -23,4 +23,23 @@ class BrandController extends Controller
 
         return $this->successResponse(message: 'Brands fetched successfully', data: $brands);
     }
+
+    public function ayncSelectSearch(Request $request)
+    {
+        $brands = $this->brandService->getBrandsForSelectSearch($request->input('name'));
+
+        if($brands->isEmpty()){
+            return $this->errorResponse(message: 'No brands found');
+        }
+
+        $brands = $brands->map(function($brand){
+            return [
+                'id' => $brand->id,
+                'label' => $brand->name,
+                'value' => $brand->id,
+            ];
+        });
+
+        return $this->successResponse(message: 'Brands fetched successfully', data: $brands);
+    }
 }
