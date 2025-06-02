@@ -8,9 +8,23 @@ use App\Models\ProductImage;
 
 class ProductService
 {
-    public function getAllProducts()
+
+    public function getProductsPaginated()
     {
-        return Product::all();
+        $queryParams = request()->query('search');
+        return Product::with(['brand:id,name', 'categories:name'])->where(function($query) use ($queryParams) {
+            if($queryParams) {
+                $query->where('name', 'like', '%' . $queryParams . '%');
+            }
+        })->orWhereHas('brand', function($query) use ($queryParams) {
+            if($queryParams) {
+                $query->where('name', 'like', '%' . $queryParams . '%');
+            }
+        })->orWhereHas('categories', function($query) use ($queryParams) {
+            if($queryParams) {
+                $query->where('name', 'like', '%' . $queryParams . '%');
+            }
+        })->paginate(20);
     }
 
     /* Admin */

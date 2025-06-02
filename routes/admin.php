@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum', 'auth.source:admin'])->group(function () {
     Route::get('/brands/search', [BrandController::class, 'ayncSelectSearch']);
 
     /* Products */
+    Route::get('/products', [ProductController::class, 'index']);
     Route::post('/products', [ProductController::class, 'store']);
     
     

@@ -52,7 +52,7 @@ class Product extends Model
     // Relationships
     public function categories()
     {
-        return $this->belongsToMany(Category::class)->withTimestamps();
+        return $this->belongsToMany(Category::class);
     }
 
     public function brand()
