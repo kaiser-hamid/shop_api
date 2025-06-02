@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+use App\Traits\HasSortOrder;
 class AttributeValue extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasSlug, HasSortOrder;
     
     protected $fillable = [
         'attribute_id',
@@ -14,6 +17,14 @@ class AttributeValue extends Model
         'slug',
         'sort_order'
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('value')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
 
     public function attribute()
     {

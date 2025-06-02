@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('brand_id')->nullable();
             $table->string('name');
             $table->string('slug')->unique();
+            $table->string('size', 50)->nullable();
             $table->string('featured_image');
             $table->text('description')->nullable();
             

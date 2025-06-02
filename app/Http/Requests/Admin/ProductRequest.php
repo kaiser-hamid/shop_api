@@ -28,6 +28,7 @@ class ProductRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'size' => 'nullable|string|max:50',
             'brand_id' => 'required|numeric',
             
             'categories' => 'required|array|min:1',

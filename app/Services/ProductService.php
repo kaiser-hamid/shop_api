@@ -34,6 +34,7 @@ class ProductService
         try {
             $product = new Product();
             $product->name = $data['name'];
+            $product->size = $data['size'] ?? null;
             $product->brand_id = $data['brand_id'];
             $product->featured_image = request()->file('featured_image');
             $product->description = $data['description'];

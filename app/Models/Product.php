@@ -13,14 +13,20 @@ use App\Models\ProductVariant;
 use App\Models\ProductHistory;
 use App\Models\ProductView;
 use App\Models\Brand;
-
+use App\Models\Scopes\LatestScope;
 class Product extends Model
 {
     use SoftDeletes, HasSlug, HasFileUpload;
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new LatestScope);
+    }
     
     protected $fillable = [
         'name',
         'slug',
+        'size',
         'description',
         'brand_id',
         'weight',
