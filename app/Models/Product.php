@@ -8,12 +8,8 @@ use App\Enums\ProductStatusEnum;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\HasSlug;
 use App\Traits\HasFileUpload;
-use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use App\Models\ProductHistory;
-use App\Models\ProductView;
-use App\Models\Brand;
 use App\Models\Scopes\LatestScope;
+
 class Product extends Model
 {
     use SoftDeletes, HasSlug, HasFileUpload;
@@ -71,6 +67,20 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
+    public function ingredient()
+    {
+        return $this->hasOne(ProductIngredient::class);
+    }
+
+    public function usage()
+    {
+        return $this->hasOne(ProductUsage::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 
     /* Relation end */
 

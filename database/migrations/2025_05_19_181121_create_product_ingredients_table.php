@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('product_ingredients', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->string('name');
+            $table->string('title')->nullable();
             $table->longText('description');
             $table->boolean('is_active')->default(true);
             $table->unsignedTinyInteger('sort_order')->default(0);

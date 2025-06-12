@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductIngredient extends Model
 {
-    //
+    protected $fillable = ['description'];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

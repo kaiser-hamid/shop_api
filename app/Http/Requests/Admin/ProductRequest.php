@@ -26,7 +26,7 @@ class ProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'size' => 'nullable|string|max:50',
             'brand_id' => 'required|numeric',
@@ -34,20 +34,33 @@ class ProductRequest extends FormRequest
             'categories' => 'required|array|min:1',
             'categories.*' => 'required|numeric',
 
-            'featured_image' => ['required', 'file', 'image', 'max:2048'],
-
-            'galleries' => 'required|array|min:1',
-            'galleries.*' => ['required', 'file', 'image', 'max:2048'],
-
             'description' => 'required|string',
             'ingredients' => 'nullable|string',
             'how_to_use' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
             'meta_keywords' => 'nullable|array',
             'meta_keywords.*' => 'nullable|string',
             'meta_description' => 'nullable|string|max:255',
             'status' => ['required', 'string', Rule::enum(ProductStatusEnum::class)],
         ];
+
+        if($this->isMethod('post')) {
+            $rules['featured_image'] = ['required', 'file', 'image', 'max:2048'];
+            $rules['galleries'] = 'required|array|min:1';
+            $rules['galleries.*'] = ['required', 'file', 'image', 'max:2048'];
+        } 
+        
+        if($this->isMethod('put')) {
+            $rules['featured_image'] = ['nullable', 'file', 'image', 'max:2048'];
+            $rules['galleries'] = 'nullable|array|min:1';
+            $rules['galleries.*'] = ['nullable', 'file', 'image', 'max:2048'];
+            $rules['galleries_exists'] = 'nullable|array';
+            $rules['galleries_exists.*'] = 'nullable|string';
+        }
+
+        return $rules;
     }
 
     public function failedValidation(Validator $validator)

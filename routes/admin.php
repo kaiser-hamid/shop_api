@@ -21,6 +21,8 @@ Route::middleware(['auth:sanctum', 'auth.source:admin'])->group(function () {
     /* Products */
     Route::get('/products', [ProductController::class, 'index']);
     Route::post('/products', [ProductController::class, 'store']);
+    Route::get('/products/{product_id}/edit', [ProductController::class, 'edit']);
+    Route::put('/products/{product}', [ProductController::class, 'update']);
     
     
 });
