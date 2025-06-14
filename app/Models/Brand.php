@@ -10,6 +10,13 @@ use Spatie\Sluggable\SlugOptions;
 class Brand extends Model
 {
     use SoftDeletes, HasSlug;
+
+    protected static function booted()
+    {
+        static::updated(function ($brand) {
+            $brand->products()->searchable();
+        });
+    }
     
     protected $fillable = [
         'name',

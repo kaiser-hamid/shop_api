@@ -10,7 +10,14 @@ use Spatie\Sluggable\SlugOptions;
 class Category extends Model
 {
     use SoftDeletes, HasSlug;  
-    
+
+    protected static function booted()
+    {
+        static::updated(function ($category) {
+            $category->products()->searchable();
+        });
+    }
+
     protected $fillable = [
         'name',
         'slug',
@@ -28,6 +35,13 @@ class Category extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+
+    /* Relations */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
     }
 
     // Get parent category

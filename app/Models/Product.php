@@ -54,17 +54,11 @@ class Product extends Model
 
     public function toSearchableArray()
     {
-        $variant = (object) [
-            'price' => 99.99,
-            'sale_price' => 78.99,
-            'discount' => 21,
-            'stock_quantity' => 50,
-        ];
-        
         $categories = $this->categories?->pluck('name')?->toArray() ?? [];
-        
         $brand = $this->brand?->name ?? null;
+        $variant = $this->variants?->first();
 
+        //TODO: Add rating
         $rating = rand(1, 5);
         
         return [
@@ -74,10 +68,10 @@ class Product extends Model
             'size' => $this->size,
             'brand' => $brand,
             'categories' => $categories,
-            'price' => $variant->price,
-            'sale_price' => $variant->sale_price,
-            'discount' => $variant->discount,
-            'stock_quantity' => $variant->stock_quantity,
+            'price' => $variant?->price ?? null,
+            'sale_price' => $variant?->sale_price ?? null,
+            'discount_percentage' => $variant?->discount_percentage ?? null,
+            'stock_quantity' => $variant?->stock_quantity ?? null,
             'rating' => $rating,
             'status' => $this->status,
             'featured_image' => asset('storage/' . $this->featured_image),
@@ -113,6 +107,12 @@ class Product extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 
     /* Relation end */
@@ -228,11 +228,6 @@ class Product extends Model
     public function isLowStock()
     {
         return $this->stock_quantity <= $this->low_stock_threshold;
-    }
-
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
     }
 
     public function getVariantsWithAttributes()

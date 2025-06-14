@@ -224,6 +224,8 @@ class ProductService
         }
 
         $productVariant = $productVariant->fresh();
+
+        $product->searchable();
         
         return [
             'id' => $productVariant->id,
@@ -238,12 +240,13 @@ class ProductService
 
     public function updateProductVariant(array $data, ProductVariant $productVariant)
     {
-        Log::debug('product variant data: ', $data);
         $isUpdated = $productVariant->update($data);
         
         if (!$isUpdated) {
             throw new \Exception('Failed to update product variant');
         }
+
+        $productVariant->product->searchable();
         
         return $productVariant;
     }
