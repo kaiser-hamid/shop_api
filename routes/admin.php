@@ -23,6 +23,12 @@ Route::middleware(['auth:sanctum', 'auth.source:admin'])->group(function () {
     Route::post('/products', [ProductController::class, 'store']);
     Route::get('/products/{product_id}/edit', [ProductController::class, 'edit']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
+
+    /* Product variants */
+    Route::get('/product-variants/{product_id}', [ProductController::class, 'getProductVariants']);
+    Route::post('/product-variants/{product}', [ProductController::class, 'storeProductVariant']);
+    Route::patch('/product-variants/{productVariant}', [ProductController::class, 'updateProductVariant']);
+    Route::delete('/product-variants/{productVariant}', [ProductController::class, 'deleteProductVariant']);
     
     
 });

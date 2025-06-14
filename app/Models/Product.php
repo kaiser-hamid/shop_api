@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 use App\Enums\ProductStatusEnum;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\HasSlug;
@@ -12,7 +13,7 @@ use App\Models\Scopes\LatestScope;
 
 class Product extends Model
 {
-    use SoftDeletes, HasSlug, HasFileUpload;
+    use SoftDeletes, Searchable, HasSlug, HasFileUpload;
 
     protected static function booted()
     {
@@ -49,6 +50,38 @@ class Product extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function toSearchableArray()
+    {
+        $variant = (object) [
+            'price' => 99.99,
+            'sale_price' => 78.99,
+            'discount' => 21,
+            'stock_quantity' => 50,
+        ];
+        
+        $categories = $this->categories?->pluck('name')?->toArray() ?? [];
+        
+        $brand = $this->brand?->name ?? null;
+
+        $rating = rand(1, 5);
+        
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'size' => $this->size,
+            'brand' => $brand,
+            'categories' => $categories,
+            'price' => $variant->price,
+            'sale_price' => $variant->sale_price,
+            'discount' => $variant->discount,
+            'stock_quantity' => $variant->stock_quantity,
+            'rating' => $rating,
+            'status' => $this->status,
+            'featured_image' => asset('storage/' . $this->featured_image),
+        ];
     }
 
     // Relationships

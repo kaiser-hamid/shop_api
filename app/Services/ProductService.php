@@ -7,6 +7,8 @@ use App\Models\ProductImage;
 use App\Models\ProductIngredient;
 use App\Models\ProductUsage;
 use App\Models\Tag;
+use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -89,6 +91,9 @@ class ProductService
                 }
                 $product->tags()->attach($tagIds);
             }
+
+            $product->load('categories', 'brand');
+            $product->searchable();
 
             DB::commit();
             return $product;
@@ -192,12 +197,55 @@ class ProductService
                 $product->tags()->sync($tagIds);
             }
 
+            $product->load('categories', 'brand');
+            $product->searchable();
+
             DB::commit();
             return $product;
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public function getProductVariants($product_id)
+    {
+        return Product::with('variants:id,product_id,sku,price,discount_percentage,stock_quantity,status')->select(['id', 'name', 'slug'])->findOrFail($product_id);
+    }
+
+    public function createProductVariant(array $data, Product $product)
+    {
+        $productVariant = new ProductVariant($data);
+
+        $isSaved = $product->variants()->save($productVariant);
+        
+        if(!$isSaved) {
+            throw new \Exception('Failed to create product variant');
+        }
+
+        $productVariant = $productVariant->fresh();
+        
+        return [
+            'id' => $productVariant->id,
+            'product_id' => $productVariant->product_id,
+            'sku' => $productVariant->sku,
+            'price' => $productVariant->price,
+            'discount_percentage' => $productVariant->discount_percentage,
+            'stock_quantity' => $productVariant->stock_quantity,
+            'status' => $productVariant->status,
+        ];
+    }
+
+    public function updateProductVariant(array $data, ProductVariant $productVariant)
+    {
+        Log::debug('product variant data: ', $data);
+        $isUpdated = $productVariant->update($data);
+        
+        if (!$isUpdated) {
+            throw new \Exception('Failed to update product variant');
+        }
+        
+        return $productVariant;
     }
     
     

@@ -49,7 +49,8 @@ class ProductVariant extends Model
         'sale_price',
         'stock_quantity',
         'status',
-        'low_stock_threshold'
+        'low_stock_threshold',
+        'discount_percentage'
     ];
 
     protected $casts = [
@@ -57,6 +58,26 @@ class ProductVariant extends Model
         'sale_price' => 'decimal:2',
         'stock_quantity' => 'integer'
     ];
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = $value;
+        if($this->discount_percentage) {
+            $this->attributes['sale_price'] = $value ?  $value * (1 - $this->discount_percentage / 100) : null;
+        } else {
+            $this->attributes['sale_price'] = $value;
+        }
+    }
+
+    public function setDiscountPercentageAttribute($value)
+    {
+        $this->attributes['discount_percentage'] = $value;
+        if($value) {
+            $this->attributes['sale_price'] = $this->attributes['price'] ? $this->attributes['price'] * (1 - $value / 100) : null;
+        }else{
+            $this->attributes['sale_price'] = $this->attributes['price'] ? $this->attributes['price'] : null;
+        }
+    }
 
     public function product()
     {
