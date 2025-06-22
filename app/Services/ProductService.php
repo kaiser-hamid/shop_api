@@ -13,6 +13,31 @@ use Illuminate\Support\Facades\Log;
 class ProductService
 {
 
+    /*==================================================== FRONTEND FUNCTIONS ====================================================*/
+    
+    /**
+     * Get product by slug
+     * @param string $slug
+     * @return Product
+     */
+    public function getProductBySlug($slug)
+    {
+        return Product::select(['id', 'name', 'slug', 'size', 'featured_image', 'brief_description', 'meta_title', 'meta_description', 'meta_keywords', 'brand_id'])
+        ->with(['topVariant:id,product_id,sku,price,discount_percentage,stock_quantity,low_stock_threshold', 'brand:id,name,slug', 'categories:name,slug', 'tags:id,name', 'productImages:id,product_id,image_path'])
+        ->active()
+        ->where('slug', $slug)
+        ->first();
+    }
+
+    /*================================================= FRONTEND FUNCTIONS END ================================================*/
+
+
+    /*==================================================== ADMIN FUNCTIONS ====================================================*/
+
+    /**
+     * Get products paginated
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
     public function getProductsPaginated()
     {
         $queryParams = request()->query('search');
@@ -31,11 +56,6 @@ class ProductService
         })->paginate(20);
     }
 
-    /*=========================================================================================================================*/
-
-    /*==================================================== ADMIN FUNCTIONS ====================================================*/
-
-    /*=========================================================================================================================*/
 
     /**
      * Create product

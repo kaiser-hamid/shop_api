@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 use App\Enums\ProductStatusEnum;
+use App\Enums\ProductVariantStatusEnum;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\HasSlug;
 use App\Traits\HasFileUpload;
 use App\Models\Scopes\LatestScope;
+use App\Enums\StatusEnum;
 
 class Product extends Model
 {
@@ -78,6 +80,11 @@ class Product extends Model
         ];
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', ProductStatusEnum::PUBLISHED);
+    }
+
     // Relationships
     public function categories()
     {
@@ -113,6 +120,11 @@ class Product extends Model
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    public function topVariant()
+    {
+        return $this->hasOne(ProductVariant::class)->where('status', StatusEnum::ACTIVE);
     }
 
     /* Relation end */
