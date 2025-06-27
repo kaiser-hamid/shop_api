@@ -29,6 +29,21 @@ class ProductService
         ->first();
     }
 
+
+    /**
+     * Get product additional info
+     * @param int $id
+     * @return Product
+     */
+    public function getProductAdditionalInfo(int $id)
+    {
+        return Product::select(['id', 'description'])
+        ->with(['ingredient:id,product_id,description', 'usage:id,product_id,description'])
+        ->active()
+        ->where('id', $id)
+        ->first();
+    }
+
     /*================================================= FRONTEND FUNCTIONS END ================================================*/
 
 

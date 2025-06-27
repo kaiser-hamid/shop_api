@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Frontend\Product;
+use App\Http\Controllers\CommonController;
+use App\Http\Controllers\Frontend\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +10,11 @@ Route::get('/user', function (Request $request) {
 });
 
 /*========================================= Frontend routes ==========================================*/
-Route::get('products/{slug}', [Product::class, 'productOverview']);
+Route::get('products/{slug}', [ProductController::class, 'productOverview']);
+Route::get('products/additional-info/{id}', [ProductController::class, 'productAdditionalInfo']);
+
+//Checkout APIs
+Route::get('data/cities-with-areas', [CommonController::class, 'cityAreaList']);
 /*========================================= Frontend routes end ==========================================*/
 
 /*========================================= Admin routes ==========================================*/

@@ -24,6 +24,7 @@ class ProductOverviewResource extends JsonResource
             'sale_price' => $this->getSalePrice(),
             'discount' => $this->topVariant?->discount_percentage ? round($this->topVariant?->discount_percentage, 2) : null,
             'price_saved' => $this->getPriceSaved(),
+            'stock_quantity' => $this->topVariant?->stock_quantity ?? 0,
             'low_stock_status' => $this->lowStockStatus(),
             'reviews_count' => rand(10, 100),
             'rating' => round(rand(10, 50) / 10, 1),
