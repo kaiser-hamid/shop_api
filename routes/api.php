@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Frontend\ProductController;
+use App\Http\Controllers\Frontend\CheckoutController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,7 @@ Route::get('products/additional-info/{id}', [ProductController::class, 'productA
 
 //Checkout APIs
 Route::get('data/cities-with-areas', [CommonController::class, 'cityAreaList']);
+Route::post('checkout/save-order', [CheckoutController::class, 'orderSave']);
 /*========================================= Frontend routes end ==========================================*/
 
 /*========================================= Admin routes ==========================================*/
