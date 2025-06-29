@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
+    /*======================================== Frontend ========================================*/
+
     public function createOrder($data, $user)
     {
         try {
@@ -140,5 +142,21 @@ class OrderService
     public function getOrderDetails($order_id)
     {
         return Order::with(['orderDetails.product', 'user'])->whereHas('orderDetails')->findOrFail($order_id);
+    }
+
+    /*======================================== Admin ========================================*/
+
+    /**
+     * Get orders paginated
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getOrdersPaginated()
+    {
+        $search = request()->query('search');
+        return Order::with(['user:id,name,phone', 'orderDetails.product:id,name,slug,featured_image'])->where(function($query) use ($search) {
+            if($search) {
+                $query->where('order_number', 'like', '%' . $search . '%');
+            }
+        })->paginate(20);
     }
 }
