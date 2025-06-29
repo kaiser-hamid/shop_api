@@ -23,7 +23,7 @@ class Order extends Model
 
     private static function generateOrderNumber()
     {
-        $date = now()->format('Ymd');
+        $date = now()->format('ymd');
         $lastOrder = self::whereDate('created_at', today())->latest()->first();
         
         $sequence = $lastOrder ? (int)substr($lastOrder->order_number, -4) + 1 : 1;
@@ -54,6 +54,11 @@ class Order extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 }

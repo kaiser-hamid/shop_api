@@ -31,7 +31,7 @@ class CheckoutRequest extends FormRequest
             'customer_city' => 'required|string|max:100',
             'customer_area' => 'required|string|max:100',
             'customer_address' => 'required|string|max:500',
-            'transaction_number' => 'required|string|max:100',
+            'transaction_number' => 'required_unless:customer_city,Dhaka|string|max:100',
             'payment_method' => ['required', Rule::in(PaymentMethodEnum::values())],
             'item_slugs' => 'required|array|min:1',
             'item_slugs.*' => 'required|string|exists:products,slug',

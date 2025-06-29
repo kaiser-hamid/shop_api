@@ -17,6 +17,7 @@ Route::get('products/additional-info/{id}', [ProductController::class, 'productA
 //Checkout APIs
 Route::get('data/cities-with-areas', [CommonController::class, 'cityAreaList']);
 Route::post('checkout/save-order', [CheckoutController::class, 'orderSave']);
+Route::get('checkout/order/{order_id}', [CheckoutController::class, 'orderDetails']);
 /*========================================= Frontend routes end ==========================================*/
 
 /*========================================= Admin routes ==========================================*/

@@ -28,9 +28,8 @@ class OrderService
             $order->shipping_cost = $shippingCost = $this->calculateShippingCost($data);
             $order->total_amount = $subtotal + $shippingCost;
 
-            if ($data['customer_city'] == 'Dhaka') {
+            if ($data['customer_city'] != 'Dhaka') {
                 $order->transaction_number = $data['transaction_number'];
-                $order->is_inside_dhaka = true;
             } 
             
             $order->is_inside_dhaka =  $data['customer_city'] == 'Dhaka';
@@ -136,5 +135,10 @@ class OrderService
         }
 
         return $user;
+    }
+
+    public function getOrderDetails($order_id)
+    {
+        return Order::with(['orderDetails.product', 'user'])->whereHas('orderDetails')->findOrFail($order_id);
     }
 }

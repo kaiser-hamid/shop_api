@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
+use App\Http\Resources\OrderResource;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 
@@ -20,5 +21,12 @@ class CheckoutController extends Controller
         }
 
         return $this->successResponse(message: 'Order created successfully', data: ['order_id' => $order->id]);
+    }
+
+    public function orderDetails(OrderService $orderService, $order_id)
+    {
+        $order = $orderService->getOrderDetails($order_id);
+
+        return $this->successResponse(message: 'Order details fetched successfully', data: new OrderResource($order));
     }
 }
