@@ -12,6 +12,7 @@ use Spatie\Sluggable\HasSlug;
 use App\Traits\HasFileUpload;
 use App\Models\Scopes\LatestScope;
 use App\Enums\StatusEnum;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -56,10 +57,17 @@ class Product extends Model
 
     public function toSearchableArray()
     {
-        $categories = $this->categories?->pluck('name')?->toArray() ?? [];
+        // Load categories with their parent relationships
+        $this->load(['categories.parent', 'categories.parent.parent']);
+        
+        // Build categories with full hierarchical paths
+        $categories = $this->buildCategoryPaths();
         $brand = $this->brand?->name ?? null;
         $variant = $this->variants?->first();
 
+        // Build hierarchical categories for Algolia
+        $hierarchicalCategories = $this->buildHierarchicalCategories();
+        
         //TODO: Add rating
         $rating = rand(1, 5);
         
@@ -70,6 +78,7 @@ class Product extends Model
             'size' => $this->size,
             'brand' => $brand,
             'categories' => $categories,
+            'hierarchicalCategories' => $hierarchicalCategories,
             'price' => $variant?->price ?? null,
             'sale_price' => $variant?->sale_price ?? null,
             'discount_percentage' => $variant?->discount_percentage ?? null,
@@ -78,6 +87,99 @@ class Product extends Model
             'status' => $this->status,
             'featured_image' => asset('storage/' . $this->featured_image),
         ];
+    }
+
+    /**
+     * Build categories array with full hierarchical paths
+     * 
+     * @return array
+     */
+    private function buildCategoryPaths(): array
+    {
+        $categoryPaths = [];
+        
+        foreach ($this->categories as $category) {
+            $categoryPath = $this->getCategoryHierarchyPath($category);
+            
+            // For each category, generate paths for all levels up to its depth
+            if (count($categoryPath) >= 1) {
+                // Level 0: Root category
+                $categoryPaths[] = $categoryPath[0]->name;
+                
+                if (count($categoryPath) >= 2) {
+                    // Level 1: Root > Subcategory
+                    $categoryPaths[] = $categoryPath[0]->name . ' > ' . $categoryPath[1]->name;
+                    
+                    if (count($categoryPath) >= 3) {
+                        // Level 2: Root > Subcategory > Sub-subcategory
+                        $categoryPaths[] = $categoryPath[0]->name . ' > ' . $categoryPath[1]->name . ' > ' . $categoryPath[2]->name;
+                    }
+                }
+            }
+        }
+        
+        return array_values(array_unique($categoryPaths));
+    }
+
+    /**
+     * Build hierarchical categories structure for Algolia
+     * 
+     * @return array
+     */
+    private function buildHierarchicalCategories(): array
+    {
+        $hierarchicalCategories = [
+            'lvl0' => [],
+            'lvl1' => [],
+            'lvl2' => []
+        ];
+
+        foreach ($this->categories as $category) {
+            $categoryPath = $this->getCategoryHierarchyPath($category);
+            
+            // For each category, generate entries for all levels up to its depth
+            if (count($categoryPath) >= 1) {
+                // Level 0: Root category
+                $hierarchicalCategories['lvl0'][] = $categoryPath[0]->name;
+                
+                if (count($categoryPath) >= 2) {
+                    // Level 1: Root > Subcategory
+                    $hierarchicalCategories['lvl1'][] = $categoryPath[0]->name . ' > ' . $categoryPath[1]->name;
+                    
+                    if (count($categoryPath) >= 3) {
+                        // Level 2: Root > Subcategory > Sub-subcategory
+                        $hierarchicalCategories['lvl2'][] = $categoryPath[0]->name . ' > ' . $categoryPath[1]->name . ' > ' . $categoryPath[2]->name;
+                    }
+                }
+            }
+        }
+
+        // Remove duplicates and ensure unique values
+        $hierarchicalCategories['lvl0'] = array_values(array_unique($hierarchicalCategories['lvl0']));
+        $hierarchicalCategories['lvl1'] = array_values(array_unique($hierarchicalCategories['lvl1']));
+        $hierarchicalCategories['lvl2'] = array_values(array_unique($hierarchicalCategories['lvl2']));
+
+        return $hierarchicalCategories;
+    }
+
+    /**
+     * Get the full category path for a given category
+     * 
+     * @param Category $category
+     * @return array
+     */
+    private function getCategoryHierarchyPath($category): array
+    {
+        $path = [];
+        $currentCategory = $category;
+
+        // Build path from current category up to root
+        while ($currentCategory) {
+            array_unshift($path, $currentCategory);
+            $currentCategory = $currentCategory->parent;
+        }
+
+        return $path;
     }
 
     public function scopeActive($query)
@@ -283,7 +385,12 @@ class Product extends Model
     public function getAlsoViewedProducts($limit = 5)
     {
         // Get recent views from the same user
-        $recentViews = ProductView::where('user_id', auth()->id())
+        $userId = Auth::id();
+        if (!$userId) {
+            return collect();
+        }
+        
+        $recentViews = ProductView::where('user_id', $userId)
             ->where('viewed_at', '>', now()->subDays(7))
             ->where('product_id', '!=', $this->id)
             ->orderBy('viewed_at', 'desc')
