@@ -27,8 +27,7 @@ and Laravel Sanctum authentication.
 
 One of the key features of this API is the hierarchical category 
 implementation for Algolia Search. Products support up to 3 levels 
-of category nesting:
-Health & Wellness
+of category nesting.
 
 This enables drill-down category filtering on the frontend 
 using Algolia's InstantSearch widgets.
