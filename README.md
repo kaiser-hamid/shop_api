@@ -68,9 +68,9 @@ php artisan serve
 
 ### Environment Variables:
 
-ALGOLIA_APP_ID=your_app_id
-ALGOLIA_SECRET=your_admin_api_key
-SANCTUM_STATEFUL_DOMAINS=localhost:3000
+**ALGOLIA_APP_ID=your_app_id**
+**ALGOLIA_SECRET=your_admin_api_key**
+**SANCTUM_STATEFUL_DOMAINS=localhost:3000**
 
 ### Sync Algolia Index
 
